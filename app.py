@@ -6,8 +6,8 @@ import os
 # Sayfa Konfigürasyonu
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="SATIŞ & MÜŞTERİ PANELİ",
-    page_icon="🏆",
+    page_title="KİŞİLİK ENVANTERİ HEDEF AVM",
+    page_icon="",
     layout="wide"
 )
 
