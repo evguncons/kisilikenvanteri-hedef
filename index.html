@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hedef AVM - İşe Alım Davranış ve Kişilik Envanteri</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --magenta-primary: #c2185b;
+            --magenta-hover: #ad1457;
+            --magenta-light: #fce4ec;
+        }
+        body {
+            background-color: #f3f4f6;
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+        .text-magenta { color: var(--magenta-primary); }
+        .bg-magenta { background-color: var(--magenta-primary); }
+        .bg-magenta-hover:hover { background-color: var(--magenta-hover); }
+        .border-magenta { border-color: var(--magenta-primary); }
+        .ring-magenta { --tw-ring-color: var(--magenta-primary); }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbb5bc; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--magenta-primary); }
+
+        /* Animations */
+        .fade-in { animation: fadeIn 0.4s ease-in-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Spinner */
+        .loader {
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .step-container { display: none; }
+        .step-container.active { display: block; }
+
+        /* Modal Transitions */
+        .modal-enter { opacity: 1; pointer-events: auto; }
+        .modal-enter .modal-content { transform: scale(1); }
+        .modal-leave { opacity: 0; pointer-events: none; transition-delay: 0.2s; }
+        .modal-leave .modal-content { transform: scale(0.95); }
+    </style>
+</head>
+<body class="text-gray-800 antialiased min-h-screen flex flex-col relative">
+
+<!-- Sticky Header & Progress Bar -->
+<header class="sticky top-0 z-40 bg-white shadow-sm">
+    <div class="max-w-3xl mx-auto px-4 py-3 flex justify-between items-center">
+        <div class="font-bold text-magenta text-lg tracking-tight">HEDEF AVM</div>
+        <div id="progressText" class="text-sm font-semibold text-gray-600">%0 Tamamlandı</div>
+    </div>
+    <!-- Progress Bar -->
+    <div class="h-1.5 w-full bg-gray-200">
+        <div id="progressBar" class="h-1.5 bg-magenta transition-all duration-500 ease-out" style="width: 0%;"></div>
+    </div>
+</header>
+
+<main class="flex-grow py-8 px-4 sm:px-6 lg:px-8 flex items-start justify-center">
+    <div class="w-full max-w-3xl">
+        
+        <form id="inventoryForm" class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+            
+            <!-- STEP 0: Introduction & Personal Info -->
+            <div id="step-0" class="step-container active fade-in">
+                <div class="bg-magenta text-white p-8 text-center relative overflow-hidden">
+                    <div class="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white to-transparent"></div>
+                    <h1 class="text-3xl sm:text-4xl font-extrabold mb-3 relative z-10">Kişilik Envanteri</h1>
+                    <p class="text-sm sm:text-base opacity-90 max-w-xl mx-auto relative z-10 font-light">
+                        Kendinizi en iyi tanımlayan seçenekleri işaretleyiniz. Doğru veya yanlış cevap yoktur. Gerçekçi yanıtlar vermeniz sürecin verimliliği için önemlidir.
+                    </p>
+                </div>
+                
+                <div class="p-6 sm:p-10">
+                    <h2 class="text-xl font-semibold mb-6 text-gray-800 border-b pb-2">Kişisel Bilgileriniz</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-1">
+                            <label class="text-sm font-medium text-gray-700">Adınız Soyadınız <span class="text-red-500">*</span></label>
+                            <input type="text" id="adSoyad" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-magenta focus:border-transparent transition duration-200 outline-none" placeholder="Örn: Ahmet Yılmaz">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-sm font-medium text-gray-700">E-posta Adresiniz <span class="text-red-500">*</span></label>
+                            <input type="email" id="eposta" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-magenta focus:border-transparent transition duration-200 outline-none" placeholder="Örn: ahmet@email.com">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-sm font-medium text-gray-700">Telefon Numaranız <span class="text-red-500">*</span></label>
+                            <input type="tel" id="telefon" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-magenta focus:border-transparent transition duration-200 outline-none" placeholder="Örn: 0555 123 4567">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-sm font-medium text-gray-700">Başvurulan Pozisyon <span class="text-red-500">*</span></label>
+                            <input type="text" id="pozisyon" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-magenta focus:border-transparent transition duration-200 outline-none" placeholder="Örn: Satış Temsilcisi">
+                        </div>
+                    </div>
+
+                    <div class="mt-8 p-4 bg-blue-50/50 rounded-xl border border-blue-100 flex items-start gap-4">
+                        <div class="mt-1 w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 text-blue-600">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-blue-900">Değerlendirme Ölçeği</h4>
+                            <p class="text-sm text-blue-800 mt-1">Soruları yanıtlarken aşağıdaki derecelendirmeyi dikkate alınız: <br>
+                                <strong>1:</strong> Kesinlikle Katılmıyorum &mdash; <strong>5:</strong> Kesinlikle Katılıyorum
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- QUESTIONS (Dynamic Pages will be injected here) -->
+            <div id="dynamicPages"></div>
+
+            <!-- Navigation Footer -->
+            <div class="px-6 py-5 bg-gray-50 border-t border-gray-100 flex items-center justify-between rounded-b-2xl">
+                <button type="button" id="prevBtn" class="hidden px-6 py-2.5 rounded-xl font-medium text-gray-600 hover:bg-gray-200 transition-colors">
+                    Geri
+                </button>
+                <div class="flex-grow flex items-center justify-end gap-4">
+                    <span id="errorMsg" class="hidden text-red-500 text-sm font-medium">Lütfen tüm alanları doldurun.</span>
+                    <button type="button" id="nextBtn" class="bg-magenta bg-magenta-hover text-white px-8 py-2.5 rounded-xl font-medium shadow-md transition-all duration-200 hover:-translate-y-0.5">
+                        İleri
+                    </button>
+                    <button type="submit" id="submitBtn" class="hidden bg-magenta bg-magenta-hover text-white px-8 py-2.5 rounded-xl font-medium shadow-md transition-all duration-200 hover:-translate-y-0.5">
+                        Gönder
+                    </button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</main>
+
+<!-- Global Modal Popup -->
+<div id="modalOverlay" class="fixed inset-0 z-50 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center p-4 modal-leave transition-opacity duration-300">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full text-center transition-transform duration-300 transform scale-95 modal-content" id="modalContent">
+        
+        <!-- Loading State -->
+        <div id="modalLoading">
+            <div class="loader !border-gray-200 !border-t-[#c2185b] !w-14 !h-14 mb-4 mx-auto !border-[4px]"></div>
+            <h3 class="text-xl font-bold text-gray-800">Gönderiliyor...</h3>
+            <p class="text-gray-500 text-sm mt-2">Yanıtlarınız sisteme kaydediliyor, lütfen beklemeye devam edin.</p>
+        </div>
+        
+        <!-- Success State -->
+        <div id="modalSuccess" class="hidden">
+            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5 text-green-500">
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800">Başarılı!</h3>
+            <p class="text-gray-600 text-sm mt-2">Envanter yanıtlarınız Hedef AVM sistemine başarıyla kaydedildi. Teşekkür ederiz.</p>
+            <button onclick="window.location.reload()" class="mt-6 w-full bg-[#c2185b] text-white py-3 rounded-xl font-medium hover:bg-[#ad1457] transition-colors shadow-md hover:-translate-y-0.5">Yeni Form Doldur</button>
+        </div>
+        
+        <!-- Error State -->
+        <div id="modalError" class="hidden">
+            <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-5 text-red-500">
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800">Bir Hata Oluştu</h3>
+            <p class="text-gray-600 text-sm mt-2" id="modalErrorText">Bağlantı sırasında bir problem yaşandı.</p>
+            <button onclick="closeModal()" class="mt-6 w-full bg-gray-200 text-gray-800 py-3 rounded-xl font-medium hover:bg-gray-300 transition-colors">Geri Dön ve Tekrar Dene</button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // -------------------------------------------------------------
+    // GOOGLE APPS SCRIPT WEB APP URL
+    // -------------------------------------------------------------
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwDT-ciCqZRAoDYA8JIkzKd8mervLUqzNg-NndaV5cy0cMXF83tGVd_hWe7UNbPpu6LhA/exec"; 
+
+    // Metin belgenizdeki 50 soru
+    const questionsList = [
+        "Verilen işleri son teslim tarihinden önce tamamlamaya çalışırım.", "İşlerimi planlamadan çalışmaya başlamak beni rahatsız etmez.", "Ayrıntıları kontrol etmek için ekstra zaman harcarım.", "Bazen önemli işleri son dakikaya bırakırım.", "Takip edilmeden de görevlerimi yerine getiririm.",
+        "Aynı anda çok sayıda işi yürütürken bazı ayrıntıları gözden kaçırırım.", "Fikir ayrılıklarında karşı tarafı anlamaya çalışırım.", "Ekip kararlarına katılmasam da destek veririm.", "Çalışma arkadaşlarımın performansı işimi etkiliyorsa bunu açıkça dile getiririm.", "İnsanlarla çalışmaktansa tek başıma çalışmayı tercih ederim.",
+        "Gerektiğinde çatışmaları doğrudan yönetebilirim.", "Başkalarının benden farklı çalışma tarzlarına uyum sağlayabilirim.", "Yetki verilmesini beklemeden sorumluluk alırım.", "Belirsiz durumlarda yönlendirme beklemeyi tercih ederim.", "İnsanlar zor kararlar alırken görüşümü sorar.",
+        "Riskli görünen kararları almaktan kaçınırım.", "Bir ekipte doğal olarak yönlendirici rol üstlenirim.", "Başarısızlık ihtimali yüksekse liderlik görevlerinden uzak dururum.", "Yeni yöntemleri denemekten hoşlanırım.", "Uzun süredir çalışan sistemleri değiştirmek genellikle gereksizdir.",
+        "Bilmediğim konularda öğrenme isteğim yüksektir.", "İş yapış biçimlerinin sık değişmesi motivasyonumu düşürür.", "Farklı bakış açılarıyla karşılaşmak hoşuma gider.", "Mevcut yöntemler işe yarıyorsa yenilik aramaya gerek olmadığını düşünürüm.", "Yoğun iş baskısı altında performansımı koruyabilirim.",
+        "Beklenmedik sorunlar karşısında moralim hızlı bozulur.", "Eleştirilerden öğrenmeye çalışırım.", "İşler planladığım gibi gitmediğinde uzun süre etkilenirim.", "Zor dönemlerde çözüm üretmeye odaklanırım.", "Baskı altında hata yapma olasılığım belirgin şekilde artar.",
+        "Karar vermeden önce yeterli veri toplamaya çalışırım.", "Sezgilerime verilerden daha fazla güvenirim.", "Karmaşık problemleri parçalara ayırarak çözmeye çalışırım.", "Hızlı karar vermek çoğu zaman detaylı analizden daha değerlidir.", "Hatalı olduğumu fark ettiğimde kararımı değiştirebilirim.",
+        "Bir karar aldıktan sonra alternatifleri değerlendirmeyi bırakırım.", "İş hayatım boyunca verdiğim tüm kararlar doğru olmuştur.", "Zaman zaman yanlış değerlendirmeler yaptığımı kabul ederim.", "Hiçbir çalışma arkadaşım hakkında olumsuz düşünceye sahip olmadım.", "Her insanın geliştirmesi gereken yönleri vardır.",
+        "Şimdiye kadar profesyonel yaşamımda hiç hata yapmadım.", "Geri bildirim almak gelişimime katkı sağlar.", "Çalışmalarımda düzen benim için çok önemlidir.", "Planlı çalışmak yaratıcılığı gereksiz yere sınırlar.", "Genellikle sakin bir insanım.",
+        "Küçük aksilikler bile günümün kötü geçmesine neden olabilir.", "İnsanlarla iletişim kurmak bana enerji verir.", "Kalabalık ortamlardan mümkün olduğunca uzak dururum.", "İşleri tamamlamak benim için yeni fikirler üretmekten daha önemlidir.", "Yeni fikirler üretmek benim için işleri tamamlamaktan daha önemlidir."
+    ];
+
+    const QUESTIONS_PER_PAGE = 10;
+    const totalPages = Math.ceil(questionsList.length / QUESTIONS_PER_PAGE);
+    const totalSteps = totalPages; // Step 0 (Info) + Steps 1-5 (Questions) -> Total Steps = 5 logic-wise, but array index is 0 to 5. Max index is 5.
+    
+    let currentStep = 0; // 0: Info, 1: Q1-10, 2: Q11-20 ... 5: Q41-50
+
+    // DOM Elements
+    const dynamicPagesContainer = document.getElementById('dynamicPages');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const submitBtn = document.getElementById('submitBtn');
+    const errorMsg = document.getElementById('errorMsg');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+
+    // Sayfaları Oluştur
+    function renderPages() {
+        let pagesHtml = '';
+        for (let i = 0; i < totalPages; i++) {
+            let startIdx = i * QUESTIONS_PER_PAGE;
+            let endIdx = Math.min(startIdx + QUESTIONS_PER_PAGE, questionsList.length);
+            
+            let pageHtml = `<div id="step-${i + 1}" class="step-container p-6 sm:p-10 fade-in">
+                <div class="mb-6 flex justify-between items-end border-b pb-4">
+                    <h2 class="text-xl font-bold text-gray-800">Bölüm ${i + 1} / ${totalPages}</h2>
+                    <span class="text-sm text-gray-500">${startIdx + 1} - ${endIdx} Arası Sorular</span>
+                </div>
+                <div class="space-y-8">`;
+            
+            for (let j = startIdx; j < endIdx; j++) {
+                let qNum = j + 1;
+                // Yeni UI/UX Radyo Buton Tasarımı
+                pageHtml += `
+                    <div class="bg-white rounded-xl">
+                        <p class="text-[15px] font-medium text-gray-800 mb-4 leading-relaxed"><span class="text-magenta font-bold mr-1">${qNum}.</span> ${questionsList[j]}</p>
+                        <div class="flex gap-2 sm:gap-3 w-full">
+                            ${[1, 2, 3, 4, 5].map(val => `
+                                <label class="flex-1 cursor-pointer group">
+                                    <input type="radio" name="q${qNum}" value="${val}" class="peer hidden">
+                                    <div class="h-12 border-2 border-gray-100 bg-gray-50 rounded-lg flex items-center justify-center font-semibold text-gray-500 transition-all duration-200 
+                                                group-hover:border-[#c2185b] group-hover:bg-[#fce4ec] group-hover:text-[#c2185b]
+                                                peer-checked:border-[#c2185b] peer-checked:bg-[#c2185b] peer-checked:text-white peer-checked:shadow-md">
+                                        ${val}
+                                    </div>
+                                </label>
+                            `).join('')}
+                        </div>
+                        <div class="flex justify-between text-[11px] font-medium text-gray-400 mt-2 px-1 uppercase tracking-wider">
+                            <span>Kesinlikle Katılmıyorum</span>
+                            <span>Kesinlikle Katılıyorum</span>
+                        </div>
+                    </div>
+                `;
+            }
+            pageHtml += `</div></div>`;
+            pagesHtml += pageHtml;
+        }
+        dynamicPagesContainer.innerHTML = pagesHtml;
+        
+        // Progress barı canlı güncellemek için radyo butonlarına event ekle
+        document.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', updateProgress);
+        });
+        document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"]').forEach(input => {
+            input.addEventListener('input', updateProgress);
+        });
+    }
+
+    function showStep(stepIndex) {
+        document.querySelectorAll('.step-container').forEach((el, index) => {
+            if (index === stepIndex) {
+                el.classList.add('active');
+            } else {
+                el.classList.remove('active');
+            }
+        });
+
+        // Buton görünürlükleri
+        if (stepIndex === 0) {
+            prevBtn.classList.add('hidden');
+        } else {
+            prevBtn.classList.remove('hidden');
+        }
+
+        if (stepIndex === totalSteps) {
+            nextBtn.classList.add('hidden');
+            submitBtn.classList.remove('hidden');
+        } else {
+            nextBtn.classList.remove('hidden');
+            submitBtn.classList.add('hidden');
+        }
+
+        errorMsg.classList.add('hidden');
+        updateProgress();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function validateCurrentStep() {
+        if (currentStep === 0) {
+            // Kişisel bilgileri doğrula
+            const inputs = document.querySelectorAll('#step-0 input[required]');
+            let isValid = true;
+            inputs.forEach(input => {
+                if (!input.value.trim()) {
+                    input.classList.add('ring-2', 'ring-red-500', 'border-red-500');
+                    isValid = false;
+                } else {
+                    input.classList.remove('ring-2', 'ring-red-500', 'border-red-500');
+                    // E-posta format kontrolü (basit)
+                    if(input.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value)) {
+                         input.classList.add('ring-2', 'ring-red-500', 'border-red-500');
+                         isValid = false;
+                    }
+                }
+            });
+            return isValid;
+        } else {
+            // Soruları doğrula
+            let startIdx = (currentStep - 1) * QUESTIONS_PER_PAGE;
+            let endIdx = Math.min(startIdx + QUESTIONS_PER_PAGE, questionsList.length);
+            let isValid = true;
+
+            for (let j = startIdx; j < endIdx; j++) {
+                let qNum = j + 1;
+                if (!document.querySelector(`input[name="q${qNum}"]:checked`)) {
+                    isValid = false;
+                    break;
+                }
+            }
+            return isValid;
+        }
+    }
+
+    function updateProgress() {
+        // İlerleme yüzdesi hesaplama
+        let totalRequired = 4 + 50; // 4 input + 50 soru
+        let filledCount = 0;
+
+        // İnputlar
+        document.querySelectorAll('#step-0 input[required]').forEach(input => {
+            if (input.value.trim() !== '') filledCount++;
+        });
+
+        // Radyo butonları (Benzersiz seçilmiş soru sayısı)
+        let answeredQuestions = new Set();
+        document.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
+            answeredQuestions.add(radio.name);
+        });
+        filledCount += answeredQuestions.size;
+
+        let percentage = Math.round((filledCount / totalRequired) * 100);
+        
+        progressBar.style.width = percentage + '%';
+        progressText.innerText = `%${percentage} Tamamlandı`;
+    }
+
+    nextBtn.addEventListener('click', () => {
+        if (validateCurrentStep()) {
+            currentStep++;
+            showStep(currentStep);
+        } else {
+            errorMsg.classList.remove('hidden');
+            // Hatalı yere scroll
+            if(currentStep === 0) {
+                document.querySelector('.ring-red-500').focus();
+            }
+        }
+    });
+
+    prevBtn.addEventListener('click', () => {
+        if (currentStep > 0) {
+            currentStep--;
+            showStep(currentStep);
+        }
+    });
+
+    // Modal Fonksiyonları
+    const modalOverlay = document.getElementById('modalOverlay');
+    const modalLoading = document.getElementById('modalLoading');
+    const modalSuccess = document.getElementById('modalSuccess');
+    const modalError = document.getElementById('modalError');
+
+    function openModal() {
+        modalOverlay.classList.remove('modal-leave');
+        modalOverlay.classList.add('modal-enter');
+    }
+
+    function closeModal() {
+        modalOverlay.classList.remove('modal-enter');
+        modalOverlay.classList.add('modal-leave');
+    }
+
+    document.getElementById("inventoryForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        // YENİ EKLENEN KONTROL: Eğer son adımda (tüm sorular bitmiş) değilsek gönderimi durdur ve "İleri" butonuna basılmış gibi davran.
+        if (currentStep !== totalSteps) {
+            document.getElementById('nextBtn').click(); 
+            return;
+        }
+
+        if (!validateCurrentStep()) {
+            errorMsg.classList.remove('hidden');
+            return;
+        }
+
+        // Modal'ı Aç ve Yükleniyor Göster
+        openModal();
+        modalLoading.classList.remove('hidden');
+        modalSuccess.classList.add('hidden');
+        modalError.classList.add('hidden');
+
+        // Verileri Topla
+        let formData = {
+            adSoyad: document.getElementById("adSoyad").value.trim(),
+            eposta: document.getElementById("eposta").value.trim(),
+            telefon: document.getElementById("telefon").value.trim(),
+            pozisyon: document.getElementById("pozisyon").value.trim()
+        };
+
+        for (let i = 1; i <= 50; i++) {
+            let radio = document.querySelector(`input[name="q${i}"]:checked`);
+            formData[`q${i}`] = radio ? radio.value : "";
+        }
+
+        // Gönderim
+        fetch(SCRIPT_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            modalLoading.classList.add('hidden');
+            if(data.result === "success") {
+                modalSuccess.classList.remove('hidden');
+                progressBar.style.width = '100%';
+                progressText.innerText = `%100 Tamamlandı`;
+                document.getElementById("inventoryForm").reset();
+            } else {
+                modalError.classList.remove('hidden');
+                console.error("Hata Detayı:", data.message);
+            }
+        })
+        .catch(error => {
+            console.error("Fetch Hatası:", error);
+            modalLoading.classList.add('hidden');
+            modalError.classList.remove('hidden');
+        });
+    });
+
+    // Uygulamayı Başlat
+    renderPages();
+    showStep(0);
+
+    // Inputlarda yazarken kırmızı hatayı temizle
+    document.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', () => {
+            input.classList.remove('ring-2', 'ring-red-500', 'border-red-500');
+            errorMsg.classList.add('hidden');
+        });
+    });
+
+</script>
+
+</body>
+</html>
