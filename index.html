@@ -55,14 +55,14 @@
         /* Modal Transitions */
         .modal-enter { opacity: 1; pointer-events: auto; }
         .modal-enter .modal-content { transform: scale(1); }
-        .modal-leave { opacity: 0; pointer-events: none; transition-delay: 0.2s; }
+        .modal-leave { opacity: 0; pointer-events: none; transition-delay: 0.1s; }
         .modal-leave .modal-content { transform: scale(0.95); }
     </style>
 </head>
 <body class="text-gray-800 antialiased min-h-screen flex flex-col relative">
 
 <!-- Sticky Header & Progress Bar -->
-<header class="sticky top-0 z-40 bg-white shadow-sm">
+<header class="sticky top-0 z-40 bg-white shadow-sm border-b border-gray-100">
     <div class="max-w-3xl mx-auto px-4 py-3 flex justify-between items-center">
         <div class="font-bold text-magenta text-lg tracking-tight">HEDEF AVM</div>
         <div id="progressText" class="text-sm font-semibold text-gray-600">%0 Tamamlandı</div>
@@ -92,19 +92,20 @@
                     <h2 class="text-xl font-semibold mb-6 text-gray-800 border-b pb-2">Kişisel Bilgileriniz</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="space-y-1">
-                            <label class="text-sm font-medium text-gray-700">Adınız Soyadınız <span class="text-red-500">*</span></label>
+                            <label class="text-sm font-semibold text-gray-750">Adınız Soyadınız <span class="text-red-500">*</span></label>
                             <input type="text" id="adSoyad" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-magenta focus:border-transparent transition duration-200 outline-none" placeholder="Örn: Ahmet Yılmaz">
                         </div>
                         <div class="space-y-1">
-                            <label class="text-sm font-medium text-gray-700">E-posta Adresiniz <span class="text-red-500">*</span></label>
+                            <label class="text-sm font-semibold text-gray-750">E-posta Adresiniz <span class="text-red-500">*</span></label>
                             <input type="email" id="eposta" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-magenta focus:border-transparent transition duration-200 outline-none" placeholder="Örn: ahmet@email.com">
                         </div>
-                        <div class="space-y-1">
-                            <label class="text-sm font-medium text-gray-700">Telefon Numaranız <span class="text-red-500">*</span></label>
+                        <div class="space-y-1 relative">
+                            <label class="text-sm font-semibold text-gray-750">Telefon Numaranız <span class="text-red-500">*</span></label>
                             <input type="tel" id="telefon" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-magenta focus:border-transparent transition duration-200 outline-none" placeholder="Örn: 0555 123 4567">
+                            <p id="phoneWarning" class="text-xs mt-1.5 font-bold hidden"></p>
                         </div>
                         <div class="space-y-1">
-                            <label class="text-sm font-medium text-gray-700">Başvurulan Pozisyon <span class="text-red-500">*</span></label>
+                            <label class="text-sm font-semibold text-gray-750">Başvurulan Pozisyon <span class="text-red-500">*</span></label>
                             <input type="text" id="pozisyon" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-magenta focus:border-transparent transition duration-200 outline-none" placeholder="Örn: Satış Temsilcisi">
                         </div>
                     </div>
@@ -115,7 +116,7 @@
                         </div>
                         <div>
                             <h4 class="font-semibold text-blue-900">Değerlendirme Ölçeği</h4>
-                            <p class="text-sm text-blue-800 mt-1">Soruları yanıtlarken aşağıdaki derecelendirmeyi dikkate alınız: <br>
+                            <p class="text-sm text-blue-850 mt-1">Soruları yanıtlarken her butonun altında bulunan ifadeleri dikkate alınız: <br>
                                 <strong>1:</strong> Kesinlikle Katılmıyorum &mdash; <strong>5:</strong> Kesinlikle Katılıyorum
                             </p>
                         </div>
@@ -132,7 +133,7 @@
                     Geri
                 </button>
                 <div class="flex-grow flex items-center justify-end gap-4">
-                    <span id="errorMsg" class="hidden text-red-500 text-sm font-medium">Lütfen tüm alanları doldurun.</span>
+                    <span id="errorMsg" class="hidden text-red-500 text-sm font-bold">Lütfen tüm alanları doldurun.</span>
                     <button type="button" id="nextBtn" class="bg-magenta bg-magenta-hover text-white px-8 py-2.5 rounded-xl font-medium shadow-md transition-all duration-200 hover:-translate-y-0.5">
                         İleri
                     </button>
@@ -150,11 +151,18 @@
 <div id="modalOverlay" class="fixed inset-0 z-50 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center p-4 modal-leave transition-opacity duration-300">
     <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full text-center transition-transform duration-300 transform scale-95 modal-content" id="modalContent">
         
-        <!-- Loading State -->
-        <div id="modalLoading">
+        <!-- Loading State (Nihai Gönderim) -->
+        <div id="modalLoading" class="hidden">
             <div class="loader !border-gray-200 !border-t-[#c2185b] !w-14 !h-14 mb-4 mx-auto !border-[4px]"></div>
             <h3 class="text-xl font-bold text-gray-800">Gönderiliyor...</h3>
             <p class="text-gray-500 text-sm mt-2">Yanıtlarınız sisteme kaydediliyor, lütfen beklemeye devam edin.</p>
+        </div>
+
+        <!-- Phone Check Loading State -->
+        <div id="modalPhoneLoading" class="hidden">
+            <div class="loader !border-gray-200 !border-t-[#c2185b] !w-14 !h-14 mb-4 mx-auto !border-[4px]"></div>
+            <h3 class="text-xl font-bold text-gray-800">Kontrol Ediliyor...</h3>
+            <p class="text-gray-500 text-sm mt-2">Katılım durumunuz sorgulanıyor, lütfen bekleyin.</p>
         </div>
         
         <!-- Success State -->
@@ -163,18 +171,18 @@
                 <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
             </div>
             <h3 class="text-2xl font-bold text-gray-800">Başarılı!</h3>
-            <p class="text-gray-600 text-sm mt-2">Envanter yanıtlarınız Hedef AVM sistemine başarıyla kaydedildi. Teşekkür ederiz.</p>
-            <button onclick="window.location.reload()" class="mt-6 w-full bg-[#c2185b] text-white py-3 rounded-xl font-medium hover:bg-[#ad1457] transition-colors shadow-md hover:-translate-y-0.5">Yeni Form Doldur</button>
+            <p class="text-gray-600 text-sm mt-2 font-medium">Envanter yanıtlarınız Hedef AVM sistemine başarıyla kaydedildi. Teşekkür ederiz.</p>
+            <button type="button" onclick="window.location.reload()" class="mt-6 w-full bg-[#c2185b] text-white py-3 rounded-xl font-medium hover:bg-[#ad1457] transition-colors shadow-md hover:-translate-y-0.5">Yeni Form Doldur</button>
         </div>
         
-        <!-- Error State -->
+        <!-- Error State / Spam Engellendi -->
         <div id="modalError" class="hidden">
             <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-5 text-red-500">
                 <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
             </div>
-            <h3 class="text-2xl font-bold text-gray-800">Bir Hata Oluştu</h3>
-            <p class="text-gray-600 text-sm mt-2" id="modalErrorText">Bağlantı sırasında bir problem yaşandı.</p>
-            <button onclick="closeModal()" class="mt-6 w-full bg-gray-200 text-gray-800 py-3 rounded-xl font-medium hover:bg-gray-300 transition-colors">Geri Dön ve Tekrar Dene</button>
+            <h3 class="text-2xl font-bold text-gray-800">İşlem Engellendi</h3>
+            <p class="text-red-600 text-sm mt-2 font-bold" id="modalErrorText">Bir problem yaşandı.</p>
+            <button type="button" onclick="closeModal()" class="mt-6 w-full bg-gray-200 text-gray-800 py-3 rounded-xl font-medium hover:bg-gray-300 transition-colors">Geri Dön</button>
         </div>
 
     </div>
@@ -186,7 +194,6 @@
     // -------------------------------------------------------------
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwDT-ciCqZRAoDYA8JIkzKd8mervLUqzNg-NndaV5cy0cMXF83tGVd_hWe7UNbPpu6LhA/exec"; 
 
-    // Metin belgenizdeki 50 soru
     const questionsList = [
         "Verilen işleri son teslim tarihinden önce tamamlamaya çalışırım.", "İşlerimi planlamadan çalışmaya başlamak beni rahatsız etmez.", "Ayrıntıları kontrol etmek için ekstra zaman harcarım.", "Bazen önemli işleri son dakikaya bırakırım.", "Takip edilmeden de görevlerimi yerine getiririm.",
         "Aynı anda çok sayıda işi yürütürken bazı ayrıntıları gözden kaçırırım.", "Fikir ayrılıklarında karşı tarafı anlamaya çalışırım.", "Ekip kararlarına katılmasam da destek veririm.", "Çalışma arkadaşlarımın performansı işimi etkiliyorsa bunu açıkça dile getiririm.", "İnsanlarla çalışmaktansa tek başıma çalışmayı tercih ederim.",
@@ -196,15 +203,24 @@
         "Beklenmedik sorunlar karşısında moralim hızlı bozulur.", "Eleştirilerden öğrenmeye çalışırım.", "İşler planladığım gibi gitmediğinde uzun süre etkilenirim.", "Zor dönemlerde çözüm üretmeye odaklanırım.", "Baskı altında hata yapma olasılığım belirgin şekilde artar.",
         "Karar vermeden önce yeterli veri toplamaya çalışırım.", "Sezgilerime verilerden daha fazla güvenirim.", "Karmaşık problemleri parçalara ayırarak çözmeye çalışırım.", "Hızlı karar vermek çoğu zaman detaylı analizden daha değerlidir.", "Hatalı olduğumu fark ettiğimde kararımı değiştirebilirim.",
         "Bir karar aldıktan sonra alternatifleri değerlendirmeyi bırakırım.", "İş hayatım boyunca verdiğim tüm kararlar doğru olmuştur.", "Zaman zaman yanlış değerlendirmeler yaptığımı kabul ederim.", "Hiçbir çalışma arkadaşım hakkında olumsuz düşünceye sahip olmadım.", "Her insanın geliştirmesi gereken yönleri vardır.",
-        "Şimdiye kadar profesyonel yaşamımda hiç hata yapmadım.", "Geri bildirim almak gelişimime katkı sağlar.", "Çalışmalarımda düzen benim için çok önemlidir.", "Planlı çalışmak yaratıcılığı gereksiz yere sınırlar.", "Genellikle sakin bir insanım.",
+        "Şimdiye kadar profesyonel yaşamimde hiç hata yapmadım.", "Geri bildirim almak gelişimime katkı sağlar.", "Çalışmalarımda düzen benim için çok önemlidir.", "Planlı çalışmak yaratıcılığı gereksiz yere sınırlar.", "Genellikle sakin bir insanım.",
         "Küçük aksilikler bile günümün kötü geçmesine neden olabilir.", "İnsanlarla iletişim kurmak bana enerji verir.", "Kalabalık ortamlardan mümkün olduğunca uzak dururum.", "İşleri tamamlamak benim için yeni fikirler üretmekten daha önemlidir.", "Yeni fikirler üretmek benim için işleri tamamlamaktan daha önemlidir."
+    ];
+
+    const optionLabels = [
+        "Kesinlikle Katılmıyorum",
+        "Katılmıyorum",
+        "Kararsızım",
+        "Katılıyorum",
+        "Kesinlikle Katılıyorum"
     ];
 
     const QUESTIONS_PER_PAGE = 10;
     const totalPages = Math.ceil(questionsList.length / QUESTIONS_PER_PAGE);
-    const totalSteps = totalPages; // Step 0 (Info) + Steps 1-5 (Questions) -> Total Steps = 5 logic-wise, but array index is 0 to 5. Max index is 5.
+    const totalSteps = totalPages; 
     
-    let currentStep = 0; // 0: Info, 1: Q1-10, 2: Q11-20 ... 5: Q41-50
+    let currentStep = 0; 
+    let isPhoneSpam = false; 
 
     // DOM Elements
     const dynamicPagesContainer = document.getElementById('dynamicPages');
@@ -214,8 +230,15 @@
     const errorMsg = document.getElementById('errorMsg');
     const progressBar = document.getElementById('progressBar');
     const progressText = document.getElementById('progressText');
+    const phoneInput = document.getElementById('telefon');
+    const phoneWarning = document.getElementById('phoneWarning');
+    const modalOverlay = document.getElementById('modalOverlay');
+    const modalLoading = document.getElementById('modalLoading');
+    const modalPhoneLoading = document.getElementById('modalPhoneLoading');
+    const modalSuccess = document.getElementById('modalSuccess');
+    const modalError = document.getElementById('modalError');
+    const modalErrorText = document.getElementById('modalErrorText');
 
-    // Sayfaları Oluştur
     function renderPages() {
         let pagesHtml = '';
         for (let i = 0; i < totalPages; i++) {
@@ -223,33 +246,34 @@
             let endIdx = Math.min(startIdx + QUESTIONS_PER_PAGE, questionsList.length);
             
             let pageHtml = `<div id="step-${i + 1}" class="step-container p-6 sm:p-10 fade-in">
-                <div class="mb-6 flex justify-between items-end border-b pb-4">
+                <div class="mb-8 flex justify-between items-end border-b pb-4">
                     <h2 class="text-xl font-bold text-gray-800">Bölüm ${i + 1} / ${totalPages}</h2>
-                    <span class="text-sm text-gray-500">${startIdx + 1} - ${endIdx} Arası Sorular</span>
+                    <span class="text-sm font-bold text-magenta">${startIdx + 1} - ${endIdx} Arası Sorular</span>
                 </div>
-                <div class="space-y-8">`;
+                <div class="space-y-10">`;
             
             for (let j = startIdx; j < endIdx; j++) {
                 let qNum = j + 1;
-                // Yeni UI/UX Radyo Buton Tasarımı
                 pageHtml += `
                     <div class="bg-white rounded-xl">
-                        <p class="text-[15px] font-medium text-gray-800 mb-4 leading-relaxed"><span class="text-magenta font-bold mr-1">${qNum}.</span> ${questionsList[j]}</p>
-                        <div class="flex gap-2 sm:gap-3 w-full">
-                            ${[1, 2, 3, 4, 5].map(val => `
-                                <label class="flex-1 cursor-pointer group">
+                        <p class="text-[15px] font-bold text-gray-900 mb-4 leading-relaxed"><span class="text-magenta font-extrabold mr-1.5">${qNum}.</span> ${questionsList[j]}</p>
+                        <div class="flex gap-2 sm:gap-4 w-full items-start">
+                            ${[1, 2, 3, 4, 5].map(val => {
+                                const textLabel = optionLabels[val - 1];
+                                return `
+                                <label class="flex-1 cursor-pointer group flex flex-col items-center">
                                     <input type="radio" name="q${qNum}" value="${val}" class="peer hidden">
-                                    <div class="h-12 border-2 border-gray-100 bg-gray-50 rounded-lg flex items-center justify-center font-semibold text-gray-500 transition-all duration-200 
+                                    <div class="w-full h-12 border-2 border-gray-300 bg-white rounded-xl flex items-center justify-center font-black text-gray-800 transition-all duration-200 
                                                 group-hover:border-[#c2185b] group-hover:bg-[#fce4ec] group-hover:text-[#c2185b]
                                                 peer-checked:border-[#c2185b] peer-checked:bg-[#c2185b] peer-checked:text-white peer-checked:shadow-md">
                                         ${val}
                                     </div>
+                                    <span class="text-[11px] sm:text-xs text-center mt-2.5 font-bold text-gray-900 group-hover:text-[#c2185b] peer-checked:text-[#c2185b] peer-checked:font-extrabold transition-colors duration-200 block leading-tight max-w-[65px] sm:max-w-none break-words">
+                                        ${textLabel}
+                                    </span>
                                 </label>
-                            `).join('')}
-                        </div>
-                        <div class="flex justify-between text-[11px] font-medium text-gray-400 mt-2 px-1 uppercase tracking-wider">
-                            <span>Kesinlikle Katılmıyorum</span>
-                            <span>Kesinlikle Katılıyorum</span>
+                                `;
+                            }).join('')}
                         </div>
                     </div>
                 `;
@@ -259,13 +283,94 @@
         }
         dynamicPagesContainer.innerHTML = pagesHtml;
         
-        // Progress barı canlı güncellemek için radyo butonlarına event ekle
         document.querySelectorAll('input[type="radio"]').forEach(radio => {
             radio.addEventListener('change', updateProgress);
         });
         document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"]').forEach(input => {
             input.addEventListener('input', updateProgress);
         });
+    }
+
+    async function safeFetchJson(url, options) {
+        const response = await fetch(url, options);
+        if (!response.ok) {
+            throw new Error(`Bağlantı Hatası: Durum ${response.status}`);
+        }
+        const text = await response.text();
+        try {
+            return JSON.parse(text);
+        } catch (err) {
+            console.error("Geçersiz JSON yanıtı:", text);
+            throw new Error("Sunucu geçersiz bir çıktı üretti. Apps Script dağıtımını kontrol edin.");
+        }
+    }
+
+    // TELEFON NUMARASI SORGULAMA
+    async function checkPhoneAvailability() {
+        const phoneVal = phoneInput.value.trim();
+        const digitsOnly = phoneVal.replace(/\D/g, "");
+        
+        if (digitsOnly.length < 10) {
+            phoneWarning.classList.add('hidden');
+            phoneInput.classList.remove('ring-2', 'ring-red-500', 'border-red-500');
+            isPhoneSpam = false;
+            nextBtn.disabled = false;
+            nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            return;
+        }
+
+        // Önceki uyarı durumlarını temizle
+        phoneWarning.classList.add('hidden');
+        phoneInput.classList.remove('ring-2', 'ring-red-500', 'border-red-500');
+        isPhoneSpam = false;
+
+        // Popup Modalı Aç ve Telefon sorgulama durumuna getir
+        openModal();
+        modalPhoneLoading.classList.remove('hidden');
+        modalLoading.classList.add('hidden');
+        modalSuccess.classList.add('hidden');
+        modalError.classList.add('hidden');
+
+        phoneWarning.innerText = "Telefon numarası sorgulanıyor...";
+        phoneWarning.className = "text-xs mt-1.5 font-bold text-blue-600 block";
+
+        try {
+            const data = await safeFetchJson(SCRIPT_URL, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify({ action: "checkPhone", telefon: phoneVal })
+            });
+            
+            if (data.result === "spam") {
+                phoneWarning.innerText = "⚠️ " + data.message;
+                phoneWarning.className = "text-xs mt-1.5 font-bold text-red-600 block";
+                phoneInput.classList.add('ring-2', 'ring-red-500', 'border-red-500');
+                isPhoneSpam = true;
+                nextBtn.disabled = true;
+                nextBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+                // Popup'ı uyarı durumuna çevir
+                modalPhoneLoading.classList.add('hidden');
+                modalErrorText.innerText = data.message;
+                modalError.classList.remove('hidden');
+            } else {
+                phoneWarning.innerText = "✓ Telefon numarası onaylandı, devam edebilirsiniz.";
+                phoneWarning.className = "text-xs mt-1.5 font-bold text-green-600 block";
+                isPhoneSpam = false;
+                nextBtn.disabled = false;
+                nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+                closeModal();
+            }
+        } catch (e) {
+            console.error("Anlık sorgulama hatası:", e);
+            phoneWarning.innerText = "⚠️ Bağlantı hatası sebebiyle kontrol atlandı.";
+            phoneWarning.className = "text-xs mt-1.5 font-bold text-amber-650 block";
+            isPhoneSpam = false; 
+            nextBtn.disabled = false;
+            nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            closeModal();
+        }
     }
 
     function showStep(stepIndex) {
@@ -277,7 +382,6 @@
             }
         });
 
-        // Buton görünürlükleri
         if (stepIndex === 0) {
             prevBtn.classList.add('hidden');
         } else {
@@ -299,7 +403,6 @@
 
     function validateCurrentStep() {
         if (currentStep === 0) {
-            // Kişisel bilgileri doğrula
             const inputs = document.querySelectorAll('#step-0 input[required]');
             let isValid = true;
             inputs.forEach(input => {
@@ -308,16 +411,17 @@
                     isValid = false;
                 } else {
                     input.classList.remove('ring-2', 'ring-red-500', 'border-red-500');
-                    // E-posta format kontrolü (basit)
                     if(input.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.value)) {
                          input.classList.add('ring-2', 'ring-red-500', 'border-red-500');
                          isValid = false;
                     }
                 }
             });
+            if (isPhoneSpam) {
+                isValid = false;
+            }
             return isValid;
         } else {
-            // Soruları doğrula
             let startIdx = (currentStep - 1) * QUESTIONS_PER_PAGE;
             let endIdx = Math.min(startIdx + QUESTIONS_PER_PAGE, questionsList.length);
             let isValid = true;
@@ -334,16 +438,13 @@
     }
 
     function updateProgress() {
-        // İlerleme yüzdesi hesaplama
-        let totalRequired = 4 + 50; // 4 input + 50 soru
+        let totalRequired = 4 + 50; 
         let filledCount = 0;
 
-        // İnputlar
         document.querySelectorAll('#step-0 input[required]').forEach(input => {
             if (input.value.trim() !== '') filledCount++;
         });
 
-        // Radyo butonları (Benzersiz seçilmiş soru sayısı)
         let answeredQuestions = new Set();
         document.querySelectorAll('input[type="radio"]:checked').forEach(radio => {
             answeredQuestions.add(radio.name);
@@ -356,15 +457,27 @@
         progressText.innerText = `%${percentage} Tamamlandı`;
     }
 
-    nextBtn.addEventListener('click', () => {
+    nextBtn.addEventListener('click', async () => {
+        if (currentStep === 0) {
+            const phoneVal = phoneInput.value.trim();
+            if (phoneVal.replace(/\D/g, "").length >= 10) {
+                await checkPhoneAvailability();
+            }
+        }
+
         if (validateCurrentStep()) {
             currentStep++;
             showStep(currentStep);
         } else {
             errorMsg.classList.remove('hidden');
-            // Hatalı yere scroll
+            if (isPhoneSpam) {
+                errorMsg.innerText = "Girilen telefon numarası ile bu ay zaten kayıt oluşturulmuş.";
+            } else {
+                errorMsg.innerText = "Lütfen tüm alanları doğru ve eksiksiz doldurun.";
+            }
             if(currentStep === 0) {
-                document.querySelector('.ring-red-500').focus();
+                const firstErr = document.querySelector('.ring-red-500');
+                if (firstErr) firstErr.focus();
             }
         }
     });
@@ -376,12 +489,6 @@
         }
     });
 
-    // Modal Fonksiyonları
-    const modalOverlay = document.getElementById('modalOverlay');
-    const modalLoading = document.getElementById('modalLoading');
-    const modalSuccess = document.getElementById('modalSuccess');
-    const modalError = document.getElementById('modalError');
-
     function openModal() {
         modalOverlay.classList.remove('modal-leave');
         modalOverlay.classList.add('modal-enter');
@@ -392,12 +499,23 @@
         modalOverlay.classList.add('modal-leave');
     }
 
+    // Enter Tuşunun Formu Zamansız Göndermesini Engelleyen Güvenlik Handler'ı
+    document.getElementById("inventoryForm").addEventListener("keydown", function(e) {
+        if (e.key === "Enter") {
+            e.preventDefault(); 
+            if (currentStep < totalSteps) {
+                nextBtn.click(); 
+            } else {
+                submitBtn.click(); 
+            }
+        }
+    });
+
     document.getElementById("inventoryForm").addEventListener("submit", function(e) {
         e.preventDefault();
 
-        // YENİ EKLENEN KONTROL: Eğer son adımda (tüm sorular bitmiş) değilsek gönderimi durdur ve "İleri" butonuna basılmış gibi davran.
         if (currentStep !== totalSteps) {
-            document.getElementById('nextBtn').click(); 
+            nextBtn.click(); 
             return;
         }
 
@@ -406,13 +524,12 @@
             return;
         }
 
-        // Modal'ı Aç ve Yükleniyor Göster
         openModal();
         modalLoading.classList.remove('hidden');
+        modalPhoneLoading.classList.add('hidden');
         modalSuccess.classList.add('hidden');
         modalError.classList.add('hidden');
 
-        // Verileri Topla
         let formData = {
             adSoyad: document.getElementById("adSoyad").value.trim(),
             eposta: document.getElementById("eposta").value.trim(),
@@ -425,13 +542,11 @@
             formData[`q${i}`] = radio ? radio.value : "";
         }
 
-        // Gönderim
-        fetch(SCRIPT_URL, {
+        safeFetchJson(SCRIPT_URL, {
             method: "POST",
             headers: { "Content-Type": "text/plain;charset=utf-8" },
             body: JSON.stringify(formData)
         })
-        .then(response => response.json())
         .then(data => {
             modalLoading.classList.add('hidden');
             if(data.result === "success") {
@@ -439,27 +554,38 @@
                 progressBar.style.width = '100%';
                 progressText.innerText = `%100 Tamamlandı`;
                 document.getElementById("inventoryForm").reset();
-            } else {
+            } else if (data.result === "spam") {
+                modalErrorText.innerText = data.message;
                 modalError.classList.remove('hidden');
-                console.error("Hata Detayı:", data.message);
+            } else {
+                modalErrorText.innerText = "Sistem hatası: " + (data.message || "Bilinmeyen bir hata oluştu.");
+                modalError.classList.remove('hidden');
             }
         })
         .catch(error => {
             console.error("Fetch Hatası:", error);
             modalLoading.classList.add('hidden');
+            modalErrorText.innerText = error.message || "Sunucu bağlantısı kurulamadı. Lütfen internet bağlantınızı kontrol edip tekrar deneyiniz.";
             modalError.classList.remove('hidden');
         });
     });
 
-    // Uygulamayı Başlat
     renderPages();
     showStep(0);
 
-    // Inputlarda yazarken kırmızı hatayı temizle
+    // GİRDİ DEĞİŞİKLİĞİNDE KİLİTLERİ VE UYARILARI SIFIRLAYAN AKTİF EVENT DINLEYICILERI
     document.querySelectorAll('input').forEach(input => {
-        input.addEventListener('input', () => {
+        input.addEventListener('input', (e) => {
             input.classList.remove('ring-2', 'ring-red-500', 'border-red-500');
             errorMsg.classList.add('hidden');
+            
+            // Eğer değiştirilen alan telefon alanıysa tüm kilitleri ve uyarıları anında sıfırla
+            if (e.target.id === 'telefon') {
+                isPhoneSpam = false;
+                nextBtn.disabled = false;
+                nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                phoneWarning.classList.add('hidden');
+            }
         });
     });
 
